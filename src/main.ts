@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 import {readFileSync} from "fs";
 import {dirname} from "path";
-import {argv} from 'process';
 import * as ts from "typescript";
 import {auditProject} from "./audit-project";
 import {fixProject} from "./fix-project";
@@ -11,31 +10,35 @@ import {Module, ModuleChild, ModuleComponent} from './model';
 import {parseChildFile} from "./parse-child-file";
 import {parseModuleFile} from "./parse-module-file";
 import { parseTemplate } from "./parse-template";
+import * as path from 'path';
 
-export function parseProject(): Record<string, Module> {
-    const rootDir = argv[2] ?? '/libs';
+export function parseProject(argv: { _: string[]; fix: boolean; }): Record<string, Module> {
+    console.log(`yargs ${JSON.stringify(argv, null, 2)}`)
+    let rootDir = argv._[0] ?? './libs';
+    if(rootDir.startsWith('.')) {
+        rootDir = path.join(__dirname , rootDir);
+    }
     const modulePaths = getFilesRecursively(rootDir, new RegExp(/module.ts$/), []);
     console.log(`processsing ${modulePaths.length} files`);
     const moduleMap: Record<string, Module> = {};
 
     function processDependencies(ngModule: Module, child: ModuleChild): void {
-        if (child.dependencies?.classes) {
-            // @ts-ignore
+        if (child.dependencies.classes) {
 
             ngModule.dependencies.classes = {
-                // @ts-ignore
                 ...ngModule.dependencies.classes,
                 ...child.dependencies.classes
             };
+            delete ngModule.dependencies.classes[ngModule.className]
         }
 
-        if (child.dependencies?.selectors) {
-            // @ts-ignore
+        if (child.dependencies.selectors) {
             ngModule.dependencies.selectors = {
-                // @ts-ignore
                 ...ngModule.dependencies.selectors,
                 ...child.dependencies.selectors
             };
+            delete ngModule.dependencies.selectors[ngModule.className]
+
         }
     }
 
@@ -115,9 +118,9 @@ export function parseProject(): Record<string, Module> {
 
     const providerMap = createProviderMap(moduleMap);
     auditProject(providerMap, moduleMap);
-    fixProject(moduleMap);
+    if(argv.fix) fixProject(moduleMap);
     console.log('processing complete')
     return moduleMap;
 }
-parseProject();
+
 

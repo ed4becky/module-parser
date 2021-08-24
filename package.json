@@ -9,8 +9,9 @@
   "main": "lib/public-api.js",
   "scripts": {
     "build:dev": "tsc --watch",
-    "build": "tsc ./src/main.ts",
-    "test": "ts-node ./src/main.ts d:/users/ed/IdeaProjects/WebstormProjects/netfoundry-ui"
+    "build": "tsc ./src/cli.ts",
+    "test": "ts-node ./src/cli.ts ../../netfoundry-ui",
+    "test-fix": "ts-node ./src/cli.ts --fix ../../netfoundry-ui"
   },
   "repository": {
     "type": "",

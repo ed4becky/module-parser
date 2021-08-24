@@ -4,15 +4,8 @@ import {parseTemplate} from './parse-template';
 
 export function parseChildFile(file: ts.SourceFile): ModuleChild {
 
-    let element: ModuleChild = {
-        name: '',
-        fileLocation: '',
-        dependencies: {
-            classes: {},
-            selectors: {}
-        },
-        imports: []
-    };
+    let element: ModuleChild = new ModuleChild();
+
     walker(file);
     return element;
 
@@ -116,14 +109,14 @@ export function parseChildFile(file: ts.SourceFile): ModuleChild {
                 .replace('[]', '').split('<');
             let key = keys[0].trim();
             if (isNaN(key.charAt(0) * 1) && (key.charAt(0) === key.charAt(0).toUpperCase())) {
-                // @ts-ignore
+                if(key !== 'Array')
                 element.dependencies.classes[key] = true;
             }
             if(keys[1]) {
                 key = keys[1].replace('>', '').trim();
             }
             if (isNaN(key.charAt(0) * 1) && (key.charAt(0) === key.charAt(0).toUpperCase())) {
-                // @ts-ignore
+                if(key !== 'Array')
                 element.dependencies.classes[key] = true;
             }
         }

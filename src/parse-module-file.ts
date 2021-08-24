@@ -3,10 +3,7 @@ import {Module} from './model';
 
 export function parseModuleFile(file: ts.SourceFile): Module {
 
-    let module: Module = {
-        className: '',
-        fileLocation: ''
-    };
+    let module: Module = new Module();
     walker(file);
     return module;
 
@@ -72,7 +69,6 @@ export function parseModuleFile(file: ts.SourceFile): Module {
             });
         });
     }
-
 
     function processImports(p: ts.PropertyAssignment) {
         module.ngImports = module.ngImports ?? [];
